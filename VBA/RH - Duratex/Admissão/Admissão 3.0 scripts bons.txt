@@ -1,0 +1,183 @@
+Sub download_RP()
+ 
+Sheets("plan1").Select
+Dim bot As New WebDriver
+
+bot.Start "Chrome", "https://jira.duratex.com.br"
+bot.Get "https://jira.duratex.com.br"
+bot.FindElementById("login-form-username").SendKeys "Wfonseca" 'usuario
+bot.FindElementById("login-form-password").SendKeys "Duratex@32" 'senha
+bot.FindElementById("login").Click 'entrar
+
+While bot.FindElementById("browse_link").Text <> "Projetos"
+Wend
+bot.Get "https://jira.duratex.com.br/browse/" & Range("z1").Value
+
+Anexo = 0
+pesquisa = 0
+While pesquisa = 0
+Anexo = Anexo + 1
+arquivo = bot.FindElementByXPath("//*[@id='attachment_thumbnails']/li[" & Anexo & "]/dl/dt/a").Text
+pesquisa = InStr(1, arquivo, "Requisicao", vbTextCompare)
+
+Wend
+bot.FindElementByXPath("//*[@id='attachment_thumbnails']/li[" & Anexo & "]/dl/dt/a").Click
+While bot.FindElementById("cp-control-panel-download").Text <> "Baixar"
+Wend
+bot.FindElementById("cp-control-panel-download").Click
+
+While Not CreateObject("Scripting.FileSystemObject").FileExists(Range("a3").Value & arquivo)
+Wend
+CreateObject("Scripting.FileSystemObject").MoveFile (Range("a3").Value & arquivo), Range("b3").Value
+Range("AA1").Value = arquivo
+
+End Sub
+
+Sub PDFToExcel()
+
+On Error GoTo OutroMetodo 'se erro, vá para Outro metodo
+Dim setting_sh As Worksheet
+Set setting_sh = ThisWorkbook.Sheets("plan1")
+
+Dim pdf_path As String
+Dim excel_path As String
+
+pdf_path = setting_sh.Range("b3").Value
+excel_path = setting_sh.Range("b3").Value
+
+Dim fso As New FileSystemObject
+Dim fo As Folder
+Dim f As File
+
+Set fo = fso.GetFolder(pdf_path)
+
+Dim wa As Object
+Dim doc As Object
+Dim wr As Object
+
+Set wa = CreateObject("word.application")
+
+'Dim wa As New Word.Application
+wa.Visible = True
+'Dim doc As Word.Document
+
+Dim nwb As Workbook
+Dim nsh As Worksheet
+'Dim wr As Word.Range
+
+For Each f In fo.Files
+Set doc = wa.documents.Open(f.Path, False, Format:="PDF Files")
+    wa.ActiveWindow.ActivePane.View.SeekView = wdSeekCurrentPageHeader
+    wa.Selection.WholeStory
+    wa.Selection.Copy
+    wa.ActiveWindow.ActivePane.View.SeekView = wdSeekMainDocument
+    wa.ActiveWindow.ActivePane.View.Type = wdOutlineView
+    wa.Selection.PasteAndFormat (wdFormatOriginalFormatting)
+    wa.Selection.WholeStory
+    wa.Selection.Copy
+    
+Set wr = doc.Paragraphs(1).Range
+wr.WholeStory
+
+Set nwb = Workbooks.Add
+Set nsh = nwb.Sheets(1)
+wr.Copy
+ 
+nwb.ActiveSheet.PasteSpecial Format:="Text", link:=False, DisplayAsIcon:=False
+
+nwb.SaveAs (excel_path & Replace(f.Name, ".pdf", ".xlsx"))
+
+doc.Close False
+nwb.Close False
+Next
+
+wa.Quit
+
+'excluir arquivos
+
+Kill Range("b3").Value & "~$196 2T.xlsx" 'arquivo lixo
+Kill Range("b3").Value & "~$8502 - FLAVIO PESSOA SILVA.xlsx" 'arquivo lixo
+
+Exit Sub
+OutroMetodo: ' se Erro, vai executar o PDF_piorJeito e encerrar esse aqui!
+PDF_piorJeito
+Exit Sub
+
+End Sub
+
+Sub PDF_piorJeito()
+
+While Range("Plan2!a10") = ""
+
+
+Sheets("plan1").Select
+If Len(Dir("C:\RP\" & Range("aa1").Value)) > 0 Then 'verificar se o arquivo existe
+
+Dim strPDF_File_Name As String
+'desabilitar aviso de segurança excel
+CreateObject("Wscript.Shell").RegWrite _
+             "HKCU\Software\Microsoft\Office\" & Application.Version & _
+             "\Common\Security\DisableHyperlinkWarning", 1, "REG_DWORD"
+'abrir o arquivo
+strPDF_File_Name = Range("b3").Value & Range("aa1").Value
+ActiveWorkbook.FollowHyperlink strPDF_File_Name
+
+'habilitar aviso de segura excel
+CreateObject("Wscript.Shell").RegWrite _
+             "HKCU\Software\Microsoft\Office\" & Application.Version & _
+             "\Common\Security\DisableHyperlinkWarning", 0, "REG_DWORD"
+
+Else
+MsgBox ("Arquivo não encontrado")
+End If
+
+Sheets("plan1").Select
+Application.Wait Now + TimeValue("00:00:01")
+SendKeys "^a", True
+SendKeys "^c", True
+SendKeys "^c", True
+Application.Wait Now + TimeValue("00:00:01")
+
+Sheets("plan2").Select
+Range("a1").PasteSpecial
+
+Wend
+End Sub
+
+
+
+
+Sub AcessoRH()
+
+Dim bot As New WebDriver
+
+bot.Start "Chrome", "https://identity.acesso.io/"
+bot.Get "https://identity.acesso.io/"
+
+While bot.FindElementByClass("button").Text = "Continuar"
+Wend
+bot.FindElementById("tenant_id").SendKeys "Duratex"
+bot.FindElementByClass("button").Click
+
+While bot.FindElementByClass("field-label").Text = "CPF ou Usuário:"
+Wend
+bot.FindElementById("userIdentifier").SendKeys "41396174893"
+bot.FindElementByClass("button").Click
+While bot.FindElementByClass("field-label").Text = "Senha:"
+Wend
+bot.FindElementById("password").SendKeys "@Chacal78"
+bot.FindElementByClass("button").Click
+
+If bot.Title = "Conta Acesso" Then
+bot.Get "https://admin.acessorh.com.br/"
+
+ElseIf bot.Title = "Dashboard" Then
+End If
+
+While bot.FindElementByClass("active").Text = "Em Andamento"
+Wend
+
+If bot.FindElementByClass("account-name").Text <> "" Then
+
+End If
+End Sub

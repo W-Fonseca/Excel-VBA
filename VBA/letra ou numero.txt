@@ -1,0 +1,7 @@
+Dim texto As String = "Ola2"
+        Dim caracter As String = texto.Substring(texto.Count - 1)
+        If IsNumeric(caracter) Then
+            MsgBox("NUMERO")
+        Else
+            MsgBox("LETRA")
+        End If

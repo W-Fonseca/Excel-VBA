@@ -1,0 +1,23 @@
+Sub Consolidar()
+
+Dim xFolder As String
+Dim xPath As String
+Dim xCount As Long
+Dim xFiDialog As FileDialog
+Dim xFile As String
+Set xFiDialog = Application.FileDialog(msoFileDialogFolderPicker)
+If xFiDialog.Show = -1 Then
+xFolder = xFiDialog.SelectedItems(1)
+End If
+If xFolder = "" Then Exit Sub
+xPath = xFolder & "\*.png"
+xFile = Dir(xPath)
+Do While xFile <> ""
+xCount = xCount + 1
+xFile = Dir()
+Debug.Print xFile
+Range("a" & xCount).Value = xFile
+Loop
+MsgBox xCount & " files found"
+
+End Sub

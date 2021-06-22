@@ -1,0 +1,9 @@
+Sub Macro1()
+'
+' Macro1 Macro
+'
+
+Linha = Range("p1").End(xlDown).Row
+
+    ActiveSheet.Range("$A$1:BT" & Linha).AutoFilter Field:=16, Criteria1:=CStr("*" + "CRÉDITO" + "*")
+End Sub
