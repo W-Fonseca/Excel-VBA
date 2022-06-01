@@ -12,7 +12,7 @@ Set Email = Objeto_Outlook.CreateItem(0) 'Declarando que um novo item se chama E
     Email.Display 'Mostrar Esse novo Email
     
     Email.To = Range("J" & linha).Value 'Escrever o valor da Coluna J Linha atual
-    Email.cc = "torredecontrole_b2b@wine.com.br"
+    Email.cc = ""
     Email.Subject = "B2Bl Restrição de entrega" & " " & "Pedido: " & Range("F" & linha).Value & " " & Range("L" & linha).Value & ", " & "NF " & Range("G" & linha).Value 'assunto do email
     Email.HTMLBody = Range("Texto!A1").Value & Worksheets("Restrições de entrega").Range("K" & linha).Value & "<br><br><br><img src=C:\Temp\image.png>" 'Escrever o valor Da Coluna A Linha 1 da aba TEXTO
     'para adicionar imagem lembre que precisa colocar a imagem na pasta C:\Temp com o nome de imagem.png
