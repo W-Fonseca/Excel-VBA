@@ -1,6 +1,3 @@
-
-
-
 Sub oi()
 
 Set SapGuiAuto = GetObject("SAPGUI")
@@ -8,7 +5,7 @@ Set App = SapGuiAuto.GetscriptingEngine
 Set Connection = App.Children(0)
 Set Session = Connection.Children(0)
 
-i = 0
+i = 1
 
 For Each SapObject In Session.Children
    Call AdicionarSapObjectNaTabela(SapObject, i)
@@ -18,6 +15,9 @@ End Sub
 
 Sub AdicionarSapObjectNaTabela(SapObject, i)
 On Error Resume Next
+validador = ""
+validador = SapObject.ContainerType
+If validaor > "" Then
 i = i + 1
 Range("A" & i) = SapObject.ContainerType
 Range("B" & i) = SapObject.ID
@@ -42,13 +42,15 @@ Range("T" & i) = SapObject.ScreenTop
 Range("U" & i) = SapObject.Text
 Range("V" & i) = SapObject.Tooltip
 Range("W" & i) = SapObject.Top
-Range("X" & i) = SapObject.Width
-
-
+Range("X" & i) = SapObject.Widtho
+End If
 Debug.Print SapObject.Text
+On Error GoTo 0
+On Error GoTo SAIDA2
 If SapObject.Children.Count > 0 Then
         For Each SapOb In SapObject.Children
            Call AdicionarSapObjectNaTabela(SapOb, i)
         Next
     End If
+SAIDA2:
 End Sub
